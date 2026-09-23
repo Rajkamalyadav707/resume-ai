@@ -1,5 +1,6 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
+import { PDFDocument, PDFString, StandardFonts, rgb, type PDFFont } from "pdf-lib";
 import type { Resume } from "../types";
+import { normalizeUrl } from "./resume";
 
 export type ResumeTemplate = "classic" | "modern" | "compact";
 export const resumeTemplates: { id: ResumeTemplate; name: string; description: string }[] = [
@@ -11,7 +12,7 @@ export const resumeTemplates: { id: ResumeTemplate; name: string; description: s
 const clean = (value: string) => value.replace(/[^\x20-\x7E]/g, " ").replace(/\s+/g, " ").trim();
 const bullet = String.fromCharCode(8226);
 
-export async function downloadResumePdf(resume: Resume, template: ResumeTemplate = "classic") {
+export async function buildResumePdf(resume: Resume, template: ResumeTemplate = "classic") {
   const pdf = await PDFDocument.create();
   pdf.setTitle(`${resume.name || "Candidate"} - Resume`);
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
@@ -30,6 +31,30 @@ export async function downloadResumePdf(resume: Resume, template: ResumeTemplate
     if (line) lines.push(line); return lines;
   };
   const ensure = (space: number) => { if (y - space < settings.margin) nextPage(); };
+  const addUrlLink = (url: string, x: number, baseline: number, textWidth: number, size: number) => {
+    if (!/^https?:\/\//i.test(url)) return;
+    const annotation = pdf.context.register(pdf.context.obj({ Type: "Annot", Subtype: "Link", Rect: [x, baseline - 2, x + textWidth, baseline + size], Border: [0, 0, 0], A: { Type: "Action", S: "URI", URI: PDFString.of(url) } }));
+    page.node.addAnnot(annotation);
+  };
+  const writeContact = () => {
+    const items = [
+      { text: clean(resume.contact.email), url: "" },
+      { text: clean(resume.contact.phone), url: "" },
+      { text: clean(resume.contact.location), url: "" },
+      { text: "LinkedIn", url: normalizeUrl(resume.contact.linkedin) },
+      { text: "GitHub", url: normalizeUrl(resume.contact.github) }
+    ].filter(item => item.text && (!item.url || /^https?:\/\//i.test(item.url)));
+    let x = settings.margin;
+    for (const [index, item] of items.entries()) {
+      const prefix = index ? " | " : "", prefixWidth = regular.widthOfTextAtSize(prefix, 8), itemWidth = regular.widthOfTextAtSize(item.text, 8);
+      if (x + prefixWidth + itemWidth > width - settings.margin && x > settings.margin) { y -= 12; x = settings.margin; }
+      if (prefix) { page.drawText(prefix, { x, y, size: 8, font: regular, color: muted }); x += prefixWidth; }
+      page.drawText(item.text, { x, y, size: 8, font: regular, color: item.url ? rgb(0, .32, .76) : muted });
+      if (item.url) addUrlLink(item.url, x, y, itemWidth, 8);
+      x += itemWidth;
+    }
+    y -= 12;
+  };
   const writeLines = (value: string, size = settings.body, font = regular, color = ink, gap = settings.leading - settings.body, indent = 0) => {
     for (const line of wrapped(value, font, size, indent)) { ensure(size + gap); page.drawText(line, { x: settings.margin + indent, y, size, font, color }); y -= size + gap; }
   };
@@ -50,14 +75,23 @@ export async function downloadResumePdf(resume: Resume, template: ResumeTemplate
   };
   if (template === "modern") page.drawRectangle({ x: 0, y: height - 8, width, height: 8, color: accent });
   page.drawText(clean(resume.name || "Optimized Resume"), { x: settings.margin, y, size: template === "compact" ? 19 : 22, font: bold, color: ink }); y -= template === "compact" ? 23 : 27;
-  const contact = [resume.contact.email, resume.contact.phone, resume.contact.location, resume.contact.linkedin, resume.contact.github].map(clean).filter(Boolean).join(" | ");
-  if (contact) writeLines(contact, 8, regular, muted, 4); y -= 5;
+  if ([resume.contact.email, resume.contact.phone, resume.contact.location, resume.contact.linkedin, resume.contact.github].some(Boolean)) writeContact();
+  y -= 5;
   if (resume.summary) { heading("Professional Summary"); writeLines(resume.summary); }
   if (resume.skills.length) { heading("Core Skills"); writeLines(resume.skills.map(clean).filter(Boolean).join(" | "), settings.body, regular, ink, 3); }
   if (resume.experience.length) { heading("Professional Experience"); resume.experience.forEach(item => entry([item.role, item.company].map(clean).filter(Boolean).join(" | "), [item.location, [item.startDate, item.endDate].map(clean).filter(Boolean).join(" - ")].map(clean).filter(Boolean).join(" | "), item.bullets)); }
-  if (resume.projects.length) { heading("Projects"); resume.projects.forEach(item => entry([item.name, item.link || ""].map(clean).filter(Boolean).join(" | "), "", item.bullets)); }
+  if (resume.projects.length) { heading("Projects"); resume.projects.forEach(item => { const link = normalizeUrl(item.link); const title = [item.name, link ? "Project link" : ""].map(clean).filter(Boolean).join(" | "); const baseline = y; entry(title, "", item.bullets); if (link) { const prefix = `${clean(item.name)} | `, linkWidth = regular.widthOfTextAtSize("Project link", settings.entry); page.drawText("Project link", { x: settings.margin + regular.widthOfTextAtSize(prefix, settings.entry), y: baseline, size: settings.entry, font: bold, color: rgb(0, .32, .76) }); addUrlLink(link, settings.margin + regular.widthOfTextAtSize(prefix, settings.entry), baseline, linkWidth, settings.entry); } }); }
   if (resume.education.length) { heading("Education"); resume.education.forEach(item => entry([item.degree, item.institution].map(clean).filter(Boolean).join(" | "), [item.location || "", item.graduationDate || ""].map(clean).filter(Boolean).join(" | "), item.details || [])); }
   if (resume.certifications.length) { heading("Certifications"); writeLines(resume.certifications.map(clean).filter(Boolean).join(" | ")); }
+  return pdf;
+}
+
+export async function getResumePdfPageCount(resume: Resume, template: ResumeTemplate = "classic") {
+  return (await buildResumePdf(resume, template)).getPageCount();
+}
+
+export async function downloadResumePdf(resume: Resume, template: ResumeTemplate = "classic") {
+  const pdf = await buildResumePdf(resume, template);
   const bytes = await pdf.save(); const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer; const blob = new Blob([buffer], { type: "application/pdf" }); const link = document.createElement("a");
   link.href = URL.createObjectURL(blob); link.download = `${clean(resume.name || "Candidate").replace(/\s+/g, "_")}_Resume_${template}.pdf`; link.style.display = "none"; document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
