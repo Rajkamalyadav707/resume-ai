@@ -1,4 +1,5 @@
 import mammoth from "mammoth";
+import pdfWorkerUrl from "pdfjs-dist/legacy/build/pdf.worker.mjs?url";
 
 const maxFileSize = 8 * 1024 * 1024;
 const isPdf = (file: File) => file.name.toLowerCase().endsWith(".pdf");
@@ -41,10 +42,11 @@ export async function extractResumeText(file: File): Promise<string> {
 
   try {
     // PDF.js 6 uses Promise.withResolvers, which is absent in older iOS Safari.
-    // Parse on the page instead of in a worker so the compatibility shim is available
-    // in every execution context used for mobile uploads.
     supportOlderMobileBrowsers();
     const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+    // Vite fingerprints bundled assets, so PDF.js cannot reliably discover its worker
+    // from its default relative path in a production browser build.
+    pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
     const loadingTask = pdfjs.getDocument({ data: await file.arrayBuffer() });
     const pdf = await loadingTask.promise;
     let value = "";
