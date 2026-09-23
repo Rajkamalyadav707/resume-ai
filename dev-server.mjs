@@ -21,6 +21,7 @@ function loadEnvFile() {
 const routes = {
   "/api/analyze-resume": "./api/analyze-resume.mjs",
   "/api/optimize-resume": "./api/optimize-resume.mjs",
+  "/api/condense-resume": "./api/condense-resume.mjs",
   "/api/job-details": "./api/job-details.mjs",
   "/api/resume-chat": "./api/resume-chat.mjs"
 };

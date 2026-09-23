@@ -44,3 +44,13 @@
 .job-actions .outline,.job-actions .primary{margin:0;flex:0 0 auto}
 .job-actions .primary{display:inline-flex;align-items:center;justify-content:center;min-width:220px;white-space:nowrap}
 @media(max-width:540px){.job-actions{align-items:stretch;flex-direction:column;gap:12px}.job-actions .outline,.job-actions .primary{width:100%;min-width:0}.job-actions .primary span{margin-left:10px}}
+
+/* Invalid job descriptions must be corrected before analysis can continue. */
+.modal-backdrop{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:24px;background:#14252380}
+.validation-modal{width:min(460px,100%);border:1px solid #c8ddd7;border-radius:16px;background:#fff;box-shadow:0 24px 60px #1425234d;padding:28px}
+.validation-modal h2{margin-bottom:10px;color:#173b35;font-family:Newsreader,Georgia,serif;font-size:31px;letter-spacing:-1px;line-height:1.05}
+.validation-modal p{margin-bottom:22px;color:#52635f;line-height:1.55}
+.validation-modal .primary{width:100%}
+
+/* Concise-resume action and final download controls remain usable at every width. */
+.one-page-note{display:flex;gap:10px;align-items:baseline;margin:0 0 24px;padding:13px 15px;border:1px solid #c8ddd7;border-radius:10px;background:#f1faf7;color:#365850;font-size:13px;line-height:1.45}.one-page-note b{color:#173b35;white-space:nowrap}.complete-actions{display:flex;flex-wrap:wrap;gap:12px}.complete-actions button{margin:0;min-width:0}.editor-actions{flex-wrap:wrap}.editor-actions .outline{white-space:nowrap}@media(max-width:540px){.one-page-note{align-items:flex-start;flex-direction:column;gap:4px}.complete-actions{display:grid;grid-template-columns:1fr}.complete-actions button{width:100%}.editor-actions .outline{white-space:normal}}

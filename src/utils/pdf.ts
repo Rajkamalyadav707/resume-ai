@@ -59,5 +59,5 @@ export async function downloadResumePdf(resume: Resume, template: ResumeTemplate
   if (resume.education.length) { heading("Education"); resume.education.forEach(item => entry([item.degree, item.institution].map(clean).filter(Boolean).join(" | "), [item.location || "", item.graduationDate || ""].map(clean).filter(Boolean).join(" | "), item.details || [])); }
   if (resume.certifications.length) { heading("Certifications"); writeLines(resume.certifications.map(clean).filter(Boolean).join(" | ")); }
   const bytes = await pdf.save(); const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer; const blob = new Blob([buffer], { type: "application/pdf" }); const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob); link.download = `${clean(resume.name || "Candidate").replace(/\s+/g, "_")}_Resume_${template}.pdf`; link.click(); URL.revokeObjectURL(link.href);
+  link.href = URL.createObjectURL(blob); link.download = `${clean(resume.name || "Candidate").replace(/\s+/g, "_")}_Resume_${template}.pdf`; link.style.display = "none"; document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
