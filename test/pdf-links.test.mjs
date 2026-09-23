@@ -11,8 +11,10 @@ test("PDF renderer writes supported contact and project URLs as URI link annotat
   assert.match(source, /S:\s*"URI"/);
   assert.match(source, /resume\.contact\.linkedin/);
   assert.match(source, /resume\.contact\.github/);
+  assert.match(source, /resume\.contact\.credly/);
   assert.match(source, /text: "LinkedIn"/);
   assert.match(source, /text: "GitHub"/);
-  assert.match(source, /Project link/);
+  assert.match(source, /text: "Credly"/);
+  assert.match(source, /linkText = "View project"/);
   assert.match(source, /normalizeUrl\(item\.link\)/);
 });

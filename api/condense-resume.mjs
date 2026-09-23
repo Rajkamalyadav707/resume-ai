@@ -1,7 +1,7 @@
 import { complete, json, parseJson, requirePost } from "./_lib/ica.mjs";
 import { enforceRateLimit } from "./_lib/rate-limit.mjs";
 
-const shape = `{"name":"","contact":{"email":"","phone":"","location":"","linkedin":"","github":""},"summary":"","skills":[],"experience":[{"company":"","role":"","location":"","startDate":"","endDate":"","bullets":[]}],"education":[{"institution":"","degree":"","location":"","graduationDate":"","details":[]}],"projects":[{"name":"","link":"","bullets":[]}],"certifications":[]}`;
+const shape = `{"name":"","contact":{"email":"","phone":"","location":"","linkedin":"","github":"","credly":""},"summary":"","skills":[],"experience":[{"company":"","role":"","location":"","startDate":"","endDate":"","bullets":[]}],"education":[{"institution":"","degree":"","location":"","graduationDate":"","details":[]}],"projects":[{"name":"","link":"","bullets":[]}],"certifications":[]}`;
 
 function validResume(value) {
   return (
@@ -58,6 +58,7 @@ function sanitizeResume(value) {
       location: cleanText(contact.location),
       linkedin: normalizeUrl(contact.linkedin),
       github: normalizeUrl(contact.github),
+      credly: normalizeUrl(contact.credly),
     },
     summary: cleanText(value.summary),
     skills: cleanStrings(value.skills),
@@ -126,6 +127,7 @@ function preserveContactLinks(source, condensed) {
       linkedin:
         normalizeUrl(source.contact?.linkedin) || condensed.contact.linkedin,
       github: normalizeUrl(source.contact?.github) || condensed.contact.github,
+      credly: normalizeUrl(source.contact?.credly) || condensed.contact.credly,
     },
     projects,
   };

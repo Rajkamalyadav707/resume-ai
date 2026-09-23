@@ -34,6 +34,7 @@ export type Resume = {
     location: string;
     linkedin: string;
     github: string;
+    credly: string;
   };
   summary: string;
   skills: string[];

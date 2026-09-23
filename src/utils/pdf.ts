@@ -110,6 +110,7 @@ export async function buildResumePdf(
       { text: clean(resume.contact.location), url: "" },
       { text: "LinkedIn", url: normalizeUrl(resume.contact.linkedin) },
       { text: "GitHub", url: normalizeUrl(resume.contact.github) },
+      { text: "Credly", url: normalizeUrl(resume.contact.credly) },
     ].filter(
       (item) => item.text && (!item.url || /^https?:\/\//i.test(item.url)),
     );
@@ -202,12 +203,13 @@ export async function buildResumePdf(
     });
     y -= 9;
   };
-  const entry = (title: string, meta: string, bullets: string[]) => {
+  const entry = (title: string, meta: string, bullets: string[], link = "") => {
     const titleLines = wrapped(title, bold, settings.entry),
       metaLines = meta ? wrapped(meta, italic, settings.body - 0.7) : [];
     ensure(
       titleLines.length * settings.leading +
         metaLines.length * settings.leading +
+        (link ? settings.leading : 0) +
         Math.min(bullets.length, 2) * settings.leading +
         6,
     );
@@ -231,6 +233,19 @@ export async function buildResumePdf(
       });
       y -= settings.leading;
     });
+    if (link) {
+      const linkText = "View project";
+      const linkWidth = regular.widthOfTextAtSize(linkText, settings.body);
+      page.drawText(linkText, {
+        x: settings.margin,
+        y,
+        size: settings.body,
+        font: regular,
+        color: rgb(0, 0.32, 0.76),
+      });
+      addUrlLink(link, settings.margin, y, linkWidth, settings.body);
+      y -= settings.leading;
+    }
     bullets.filter(Boolean).forEach(writeBullet);
     y -= 3;
   };
@@ -257,6 +272,7 @@ export async function buildResumePdf(
       resume.contact.location,
       resume.contact.linkedin,
       resume.contact.github,
+      resume.contact.credly,
     ].some(Boolean)
   )
     writeContact();
@@ -295,31 +311,7 @@ export async function buildResumePdf(
     heading("Projects");
     resume.projects.forEach((item) => {
       const link = normalizeUrl(item.link);
-      const title = [item.name, link ? "Project link" : ""]
-        .map(clean)
-        .filter(Boolean)
-        .join(" | ");
-      const baseline = y;
-      entry(title, "", item.bullets);
-      if (link) {
-        const prefix = `${clean(item.name)} | `,
-          linkWidth = regular.widthOfTextAtSize("Project link", settings.entry);
-        page.drawText("Project link", {
-          x:
-            settings.margin + regular.widthOfTextAtSize(prefix, settings.entry),
-          y: baseline,
-          size: settings.entry,
-          font: bold,
-          color: rgb(0, 0.32, 0.76),
-        });
-        addUrlLink(
-          link,
-          settings.margin + regular.widthOfTextAtSize(prefix, settings.entry),
-          baseline,
-          linkWidth,
-          settings.entry,
-        );
-      }
+      entry(clean(item.name), "", item.bullets, link);
     });
   }
   if (resume.education.length) {

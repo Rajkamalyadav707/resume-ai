@@ -45,5 +45,6 @@ test("one-page resume endpoint source preserves and normalizes all supplied resu
   assert.match(source, /function normalizeUrl/);
   assert.match(source, /source\.contact\?\.linkedin/);
   assert.match(source, /source\.contact\?\.github/);
+  assert.match(source, /source\.contact\?\.credly/);
   assert.match(source, /sourceProjects/);
 });

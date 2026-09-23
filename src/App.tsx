@@ -768,6 +768,19 @@ function Editor({
                   }
                 />
               </label>
+              <label>
+                Credly profile URL
+                <input
+                  type="url"
+                  value={resume.contact.credly}
+                  onChange={(e) =>
+                    change("contact", {
+                      ...resume.contact,
+                      credly: e.target.value,
+                    })
+                  }
+                />
+              </label>
             </div>
           </fieldset>
           <fieldset>
@@ -983,6 +996,21 @@ function ResumePreview({
                   rel="noreferrer"
                 >
                   GitHub
+                </a>
+              </>
+            )}
+            {resume.contact.credly && (
+              <>
+                {(contact.length > 0 ||
+                  resume.contact.linkedin ||
+                  resume.contact.github) &&
+                  " | "}
+                <a
+                  href={resume.contact.credly}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Credly
                 </a>
               </>
             )}

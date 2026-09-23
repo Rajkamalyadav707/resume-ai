@@ -39,6 +39,7 @@ const contact = (value: unknown) => {
     location: stringValue(source.location),
     linkedin: normalizeUrl(source.linkedin),
     github: normalizeUrl(source.github),
+    credly: normalizeUrl(source.credly),
   };
 };
 const experience = (value: unknown): Experience[] =>

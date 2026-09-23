@@ -1,6 +1,6 @@
 import { complete, json, parseJson, requirePost, text } from "./_lib/ica.mjs";
 import { enforceRateLimit } from "./_lib/rate-limit.mjs";
-const shape = `{"name":"","contact":{"email":"","phone":"","location":"","linkedin":"","github":""},"summary":"","skills":[],"experience":[{"company":"","role":"","location":"","startDate":"","endDate":"","bullets":[]}],"education":[{"institution":"","degree":"","location":"","graduationDate":"","details":[]}],"projects":[{"name":"","link":"","bullets":[]}],"certifications":[]}`;
+const shape = `{"name":"","contact":{"email":"","phone":"","location":"","linkedin":"","github":"","credly":""},"summary":"","skills":[],"experience":[{"company":"","role":"","location":"","startDate":"","endDate":"","bullets":[]}],"education":[{"institution":"","degree":"","location":"","graduationDate":"","details":[]}],"projects":[{"name":"","link":"","bullets":[]}],"certifications":[]}`;
 export default async function handler(req, res) {
   if (!requirePost(req, res)) return;
   if (
