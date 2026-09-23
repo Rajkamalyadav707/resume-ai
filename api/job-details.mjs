@@ -1,4 +1,5 @@
 import { json, requirePost, text } from "./_lib/ica.mjs";
+import { enforceRateLimit } from "./_lib/rate-limit.mjs";
 function stripHtml(html) { return html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(); }
 
 export function infosysDescription(posting) {
@@ -36,6 +37,7 @@ export async function fetchInfosysJob(target, originalUrl) {
 
 export default async function handler(req, res) {
   if (!requirePost(req, res)) return;
+  if (!await enforceRateLimit(req, res, { name: "job-details", limit: 10, windowSeconds: 600 })) return;
   const url = text(req.body?.url, 2048); if (!url) return json(res, 400, { error: "Enter a valid job posting URL." });
   let target; try { target = new URL(url); if (!/^https?:$/.test(target.protocol)) throw new Error(); } catch { return json(res, 400, { error: "Enter a valid public http(s) job URL." }); }
   try {

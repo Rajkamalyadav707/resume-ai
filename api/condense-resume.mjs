@@ -1,4 +1,5 @@
 import { complete, json, parseJson, requirePost } from "./_lib/ica.mjs";
+import { enforceRateLimit } from "./_lib/rate-limit.mjs";
 
 const shape = `{"name":"","contact":{"email":"","phone":"","location":"","linkedin":"","github":""},"summary":"","skills":[],"experience":[{"company":"","role":"","location":"","startDate":"","endDate":"","bullets":[]}],"education":[{"institution":"","degree":"","location":"","graduationDate":"","details":[]}],"projects":[{"name":"","link":"","bullets":[]}],"certifications":[]}`;
 
@@ -45,6 +46,7 @@ function preserveContactLinks(source, condensed) {
 
 export default async function handler(req, res) {
   if (!requirePost(req, res)) return;
+  if (!await enforceRateLimit(req, res, { name: "condense", limit: 3, windowSeconds: 600 })) return;
   const resume = req.body?.resume;
   if (!validResume(resume)) return json(res, 400, { error: "A complete editable resume is required to create a one-page version." });
   try {

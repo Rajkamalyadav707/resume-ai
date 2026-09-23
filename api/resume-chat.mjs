@@ -1,4 +1,5 @@
 import { complete, json, requirePost, text } from "./_lib/ica.mjs";
+import { enforceRateLimit } from "./_lib/rate-limit.mjs";
 
 const MAX_HISTORY = 8;
 const unrelated = /\b(weather|recipe|politics|stock|crypto|medical|legal|homework|movie|song|joke|travel)\b/i;
@@ -18,6 +19,7 @@ function safeHistory(value) {
 
 export default async function handler(req, res) {
   if (!requirePost(req, res)) return;
+  if (!await enforceRateLimit(req, res, { name: "chat", limit: 15, windowSeconds: 600 })) return;
   const message = text(req.body?.message, 3000);
   if (!message) return json(res, 400, { error: "Enter a resume-related question." });
   if (isUnrelated(message)) return json(res, 200, { reply: "I can help with resumes, ATS readability, job tailoring, wording, skills, achievements, and interview preparation." });

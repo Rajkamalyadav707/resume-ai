@@ -88,6 +88,12 @@ npm run preview   # preview production UI build
 3. Deploy. Vercel detects Vite and serves `api/*.mjs` as serverless functions.
 4. Verify an upload, pasted job-description analysis, optimization, edit, and PDF download using a non-sensitive test resume.
 
+### API abuse protection
+
+All public API endpoints are rate-limited by caller: analysis (5/10 minutes), optimization (3/10 minutes), one-page generation (3/10 minutes), job URL extraction (10/10 minutes), and chat (15/10 minutes). Limited calls receive HTTP `429` and a `Retry-After` header before any AI request is made.
+
+For production, configure `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, and a high-entropy `RATE_LIMIT_SALT`. The Redis REST API provides a shared limit across Vercel function instances. Without those Redis variables, the app uses an in-memory limiter intended only for local development; it cannot reliably protect a multi-instance production deployment. Also configure Vercel WAF rate-limit rules for `/api/*` as a network-level layer.
+
 ## Troubleshooting
 
 - **AI analysis unavailable:** confirm the ICA environment variables, model ID, API base URL, and ICA key entitlement in Vercel. The UI intentionally suppresses raw provider errors.
