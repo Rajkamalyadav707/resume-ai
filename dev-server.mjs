@@ -23,7 +23,7 @@ const routes = {
   "/api/optimize-resume": "./api/optimize-resume.mjs",
   "/api/condense-resume": "./api/condense-resume.mjs",
   "/api/job-details": "./api/job-details.mjs",
-  "/api/resume-chat": "./api/resume-chat.mjs"
+  "/api/resume-chat": "./api/resume-chat.mjs",
 };
 const limit = 150_000;
 
@@ -34,9 +34,13 @@ function sendJson(response, status, body) {
 }
 
 function attachVercelResponse(response) {
-  response.status = (code) => { response.statusCode = code; return response; };
+  response.status = (code) => {
+    response.statusCode = code;
+    return response;
+  };
   response.send = (body) => {
-    if (!response.getHeader("Content-Type")) response.setHeader("Content-Type", "application/json; charset=utf-8");
+    if (!response.getHeader("Content-Type"))
+      response.setHeader("Content-Type", "application/json; charset=utf-8");
     response.end(typeof body === "string" ? body : JSON.stringify(body));
     return response;
   };
@@ -44,7 +48,8 @@ function attachVercelResponse(response) {
 }
 
 async function getBody(request) {
-  const chunks = []; let size = 0;
+  const chunks = [];
+  let size = 0;
   for await (const chunk of request) {
     size += chunk.length;
     if (size > limit) throw new Error("Request too large");
@@ -55,21 +60,38 @@ async function getBody(request) {
 }
 
 loadEnvFile();
-const vite = await createViteServer({ server: { middlewareMode: true }, appType: "spa" });
+const vite = await createViteServer({
+  server: { middlewareMode: true },
+  appType: "spa",
+});
 const server = createHttpServer(async (request, response) => {
   const pathname = new URL(request.url || "/", "http://localhost").pathname;
   const modulePath = routes[pathname];
   if (!modulePath) return vite.middlewares(request, response);
-  if (request.method !== "POST") return sendJson(response, 405, { error: "Method not allowed." });
+  if (request.method !== "POST")
+    return sendJson(response, 405, { error: "Method not allowed." });
   try {
     request.body = await getBody(request);
     const { default: handler } = await import(modulePath);
     await handler(request, attachVercelResponse(response));
   } catch (error) {
-    const status = error instanceof SyntaxError ? 400 : error?.message === "Request too large" ? 413 : 500;
-    console.error(`Local API error (${pathname}):`, error?.message || "Unknown error");
-    if (!response.writableEnded) sendJson(response, status, { error: "The request could not be processed. Please try again." });
+    const status =
+      error instanceof SyntaxError
+        ? 400
+        : error?.message === "Request too large"
+          ? 413
+          : 500;
+    console.error(
+      `Local API error (${pathname}):`,
+      error?.message || "Unknown error",
+    );
+    if (!response.writableEnded)
+      sendJson(response, status, {
+        error: "The request could not be processed. Please try again.",
+      });
   }
 });
 const port = Number(process.env.PORT || 5173);
-server.listen(port, "127.0.0.1", () => console.log(`ResumeAI local development server: http://127.0.0.1:${port}`));
+server.listen(port, "127.0.0.1", () =>
+  console.log(`ResumeAI local development server: http://127.0.0.1:${port}`),
+);

@@ -12,7 +12,9 @@ type PromiseWithResolvers = <T>() => {
 };
 
 function supportOlderMobileBrowsers() {
-  const promiseWithResolvers = Promise as PromiseConstructor & { withResolvers?: PromiseWithResolvers };
+  const promiseWithResolvers = Promise as PromiseConstructor & {
+    withResolvers?: PromiseWithResolvers;
+  };
   if (promiseWithResolvers.withResolvers) return;
 
   promiseWithResolvers.withResolvers = <T>() => {
@@ -27,16 +29,22 @@ function supportOlderMobileBrowsers() {
 }
 
 export async function extractResumeText(file: File): Promise<string> {
-  if (file.size > maxFileSize) throw new Error("Choose a PDF or DOCX file no larger than 8 MB.");
-  if (!isPdf(file) && !isDocx(file)) throw new Error("Choose a PDF or DOCX resume file.");
+  if (file.size > maxFileSize)
+    throw new Error("Choose a PDF or DOCX file no larger than 8 MB.");
+  if (!isPdf(file) && !isDocx(file))
+    throw new Error("Choose a PDF or DOCX resume file.");
 
   if (isDocx(file)) {
     try {
-      const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+      const result = await mammoth.extractRawText({
+        arrayBuffer: await file.arrayBuffer(),
+      });
       if (!result.value.trim()) throw new Error("empty");
       return result.value;
     } catch {
-      throw new Error("We couldn't read that DOCX. Try re-saving it as a standard .docx file and upload it again.");
+      throw new Error(
+        "We couldn't read that DOCX. Try re-saving it as a standard .docx file and upload it again.",
+      );
     }
   }
 
@@ -58,6 +66,8 @@ export async function extractResumeText(file: File): Promise<string> {
     if (!value.trim()) throw new Error("empty");
     return value;
   } catch {
-    throw new Error("We couldn't read that PDF. Upload a text-based PDF, not a scanned image, or try a DOCX version.");
+    throw new Error(
+      "We couldn't read that PDF. Upload a text-based PDF, not a scanned image, or try a DOCX version.",
+    );
   }
 }
