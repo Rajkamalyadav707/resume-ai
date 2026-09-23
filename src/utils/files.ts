@@ -4,6 +4,27 @@ const maxFileSize = 8 * 1024 * 1024;
 const isPdf = (file: File) => file.name.toLowerCase().endsWith(".pdf");
 const isDocx = (file: File) => file.name.toLowerCase().endsWith(".docx");
 
+type PromiseWithResolvers = <T>() => {
+  promise: Promise<T>;
+  resolve: (value: T | PromiseLike<T>) => void;
+  reject: (reason?: unknown) => void;
+};
+
+function supportOlderMobileBrowsers() {
+  const promiseWithResolvers = Promise as PromiseConstructor & { withResolvers?: PromiseWithResolvers };
+  if (promiseWithResolvers.withResolvers) return;
+
+  promiseWithResolvers.withResolvers = <T>() => {
+    let resolve!: (value: T | PromiseLike<T>) => void;
+    let reject!: (reason?: unknown) => void;
+    const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+      resolve = resolvePromise;
+      reject = rejectPromise;
+    });
+    return { promise, resolve, reject };
+  };
+}
+
 export async function extractResumeText(file: File): Promise<string> {
   if (file.size > maxFileSize) throw new Error("Choose a PDF or DOCX file no larger than 8 MB.");
   if (!isPdf(file) && !isDocx(file)) throw new Error("Choose a PDF or DOCX resume file.");
@@ -19,14 +40,19 @@ export async function extractResumeText(file: File): Promise<string> {
   }
 
   try {
-    const pdfjs = await import("pdfjs-dist");
-    pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.mjs", import.meta.url).toString();
-    const pdf = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+    // PDF.js 6 uses Promise.withResolvers, which is absent in older iOS Safari.
+    // Parse on the page instead of in a worker so the compatibility shim is available
+    // in every execution context used for mobile uploads.
+    supportOlderMobileBrowsers();
+    const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+    const loadingTask = pdfjs.getDocument({ data: await file.arrayBuffer() });
+    const pdf = await loadingTask.promise;
     let value = "";
     for (let page = 1; page <= pdf.numPages; page += 1) {
       const content = await (await pdf.getPage(page)).getTextContent();
       value += content.items.map((item: any) => item.str).join(" ") + "\n";
     }
+    await loadingTask.destroy();
     if (!value.trim()) throw new Error("empty");
     return value;
   } catch {
