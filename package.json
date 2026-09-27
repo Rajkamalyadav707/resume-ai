@@ -10,6 +10,9 @@
     "test": "node --test test/*.test.mjs",
     "format": "prettier --write api/**/*.mjs src/**/*.{ts,tsx} test/**/*.mjs *.{mjs,ts,json,html}",
     "format:check": "prettier --check api/**/*.mjs src/**/*.{ts,tsx} test/**/*.mjs *.{mjs,ts,json,html}",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint . --fix",
+    "check": "npm run format:check && npm run lint",
     "vercel-dev": "vercel dev"
   },
   "dependencies": {
@@ -25,6 +28,7 @@
   "devDependencies": {
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "oxlint": "1.85.0",
     "prettier": "3.8.3",
     "typescript": "latest"
   }

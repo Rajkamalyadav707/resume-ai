@@ -23,6 +23,7 @@ function cleanText(value) {
   return typeof value === "string"
     ? value
         .replace(/```(?:json)?/gi, "")
+        // oxlint-disable-next-line no-control-regex -- intentionally strips control/invalid characters from AI output.
         .replace(/[\u0000-\u001F\u007F-\u009F\uFFFD]/g, " ")
         .replace(/[•●▪◦]/g, "")
         .replace(/^\s*(?:[-*]+|\d+[.)])\s*/g, "")
@@ -105,7 +106,7 @@ function preserveContactLinks(source, condensed) {
   const sourceProjects = source.projects
     .map((item) => ({ ...item, link: normalizeUrl(item.link) }))
     .filter((item) => item.link);
-  const projects = condensed.projects.map((project, index) => ({
+  const projects = condensed.projects.map((project) => ({
     ...project,
     link:
       sourceProjects.find(

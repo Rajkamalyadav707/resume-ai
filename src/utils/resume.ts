@@ -4,6 +4,7 @@ const stringValue = (value: unknown) =>
   typeof value === "string"
     ? value
         .replace(/```(?:json)?/gi, "")
+        // oxlint-disable-next-line no-control-regex -- intentionally strips control/invalid characters from AI output.
         .replace(/[\u0000-\u001F\u007F-\u009F\uFFFD]/g, " ")
         .replace(/[•●▪◦]/g, "")
         .replace(/^\s*(?:[-*]+|\d+[.)])\s*/g, "")

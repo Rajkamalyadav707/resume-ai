@@ -200,6 +200,7 @@ function Workspace() {
         template?: ResumeTemplate;
       };
       if (stored.resume) {
+        // oxlint-disable-next-line react/set-state-in-effect -- one-time hydration from localStorage on mount.
         setResume(stored.resume);
         setSaved(structuredClone(stored.resume));
         setStep(4);
