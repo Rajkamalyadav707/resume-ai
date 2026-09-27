@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1128" height="191" viewBox="0 0 1128 191">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a8f83"/>
+      <stop offset="0.55" stop-color="#0a5f57"/>
+      <stop offset="1" stop-color="#0a3f39"/>
+    </linearGradient>
+    <linearGradient id="doc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#eef8f5"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7d78a"/>
+      <stop offset="1" stop-color="#eab84a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.86" cy="0.18" r="0.75">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1128" height="191" fill="url(#bg)"/>
+  <rect width="1128" height="191" fill="url(#glow)"/>
+
+  <!-- decorative dotted grid, subtle -->
+  <g fill="#ffffff" opacity="0.06">
+    <circle cx="640" cy="30" r="3"/><circle cx="700" cy="30" r="3"/><circle cx="760" cy="30" r="3"/>
+    <circle cx="640" cy="60" r="3"/><circle cx="700" cy="60" r="3"/><circle cx="760" cy="60" r="3"/>
+    <circle cx="640" cy="90" r="3"/><circle cx="700" cy="90" r="3"/><circle cx="760" cy="90" r="3"/>
+  </g>
+
+  <!-- large soft document motif on the right -->
+  <g transform="translate(905,26) scale(1.05)" opacity="0.95">
+    <path d="M18 0h84l42 42v98a12 12 0 0 1-12 12H18a12 12 0 0 1-12-12V12A12 12 0 0 1 18 0Z" fill="url(#doc)"/>
+    <path d="M102 0v34a8 8 0 0 0 8 8h34" fill="#cfe9e3"/>
+    <g stroke="#0a5f57" stroke-width="8" stroke-linecap="round">
+      <line x1="28" y1="80" x2="112" y2="80"/>
+      <line x1="28" y1="104" x2="112" y2="104"/>
+      <line x1="28" y1="128" x2="86" y2="128"/>
+    </g>
+  </g>
+  <circle cx="1044" cy="140" r="34" fill="url(#badge)"/>
+  <path d="M1029 140l10 10 18-21" fill="none" stroke="#123832" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- wordmark -->
+  <g transform="translate(64,58)">
+    <rect x="0" y="0" width="70" height="70" rx="16" fill="#ffffff" opacity="0.98"/>
+    <path d="M17 12h32l12 12v34H17z" fill="#0a5f57"/>
+    <path d="M49 12v9h9" fill="#7fc9bd"/>
+    <g stroke="#ffffff" stroke-width="2.6" stroke-linecap="round">
+      <line x1="24" y1="34" x2="43" y2="34"/>
+      <line x1="24" y1="41" x2="43" y2="41"/>
+      <line x1="24" y1="48" x2="36" y2="48"/>
+    </g>
+    <circle cx="55" cy="55" r="12" fill="#eab84a"/>
+    <path d="m51 55 2.6 2.6L59 51.6" fill="none" stroke="#123832" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <text x="152" y="88" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="700" fill="#ffffff" letter-spacing="-0.5">Resume<tspan fill="#f2c96d">AI</tspan></text>
+  <text x="152" y="118" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#dff3ee" letter-spacing="0.3">AI-powered resume optimization, tailored to every job</text>
+</svg>
