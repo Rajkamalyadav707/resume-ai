@@ -5,6 +5,38 @@ const maxFileSize = 8 * 1024 * 1024;
 const isPdf = (file: File) => file.name.toLowerCase().endsWith(".pdf");
 const isDocx = (file: File) => file.name.toLowerCase().endsWith(".docx");
 
+const resumeSectionSignals = [
+  /\b(summary|objective|profile)\b/i,
+  /\b(experience|employment|work history|professional history)\b/i,
+  /\b(education|academic|degree|university|college)\b/i,
+  /\b(skills|technical skills|core competencies|technologies)\b/i,
+  /\b(projects?|portfolio)\b/i,
+  /\b(certifications?|licenses?)\b/i,
+];
+const resumeDetailSignals = [
+  /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i,
+  /(?:\+?\d[\d\s().-]{7,}\d)/,
+  /\b(19|20)\d{2}\b/,
+  /\b(developed|managed|created|built|led|designed|improved|supported|achieved|worked|responsible)\b/i,
+];
+
+export function validateResumeText(value: string): string | null {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length < 120)
+    return "This file does not contain enough information to be a resume. Upload a real resume with your name, skills, education, or work experience.";
+
+  const sectionCount = resumeSectionSignals.filter((signal) =>
+    signal.test(normalized),
+  ).length;
+  const detailCount = resumeDetailSignals.filter((signal) =>
+    signal.test(normalized),
+  ).length;
+  if (sectionCount < 2 || detailCount < 2)
+    return "This does not look like a complete resume. Upload a resume with proper details such as your name, contact information, skills, education, work experience, or projects.";
+
+  return null;
+}
+
 type PromiseWithResolvers = <T>() => {
   promise: Promise<T>;
   resolve: (value: T | PromiseLike<T>) => void;
@@ -63,7 +95,10 @@ export async function extractResumeText(file: File): Promise<string> {
       value += content.items.map((item: any) => item.str).join(" ") + "\n";
     }
     await loadingTask.destroy();
-    if (!value.trim()) throw new Error("empty");
+    if (!value.trim())
+      throw new Error(
+        "This PDF contains no selectable text. Upload a readable PDF or DOCX instead of a photo or scanned image.",
+      );
     return value;
   } catch {
     throw new Error(

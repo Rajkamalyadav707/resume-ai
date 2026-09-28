@@ -56,5 +56,8 @@
 .one-page-note{display:flex;gap:10px;align-items:baseline;margin:0 0 24px;padding:13px 15px;border:1px solid #c8ddd7;border-radius:10px;background:#f1faf7;color:#365850;font-size:13px;line-height:1.45}.one-page-note b{color:#173b35;white-space:nowrap}.complete-actions{display:flex;flex-wrap:wrap;gap:12px}.complete-actions button{margin:0;min-width:0}.editor-actions{flex-wrap:wrap}.editor-actions .outline{white-space:nowrap}@media(max-width:540px){.one-page-note{align-items:flex-start;flex-direction:column;gap:4px}.complete-actions{display:grid;grid-template-columns:1fr}.complete-actions button{width:100%}.editor-actions .outline{white-space:normal}}
 .toast.success{border-left-color:#087b70;background:#f1faf7;color:#365850}
 
+/* Resume uploads are validated before the job-description step becomes available. */
+.centered-upload .upload-intro{max-width:620px;margin-right:auto;margin-left:auto}
+
 /* Phone-only landing footer: clearer reading order without changing the desktop layout. */
 @media(max-width:540px){.site-footer{gap:22px;padding:30px 20px 32px;font-size:13px;line-height:1.5}.site-footer div{display:block}.site-footer b{display:block;margin-bottom:5px;font-size:17px}.site-footer div p{max-width:29ch}.site-footer .ai-notice{width:100%;margin:0;padding-top:18px;border-top:1px solid #dce7e3;color:#60736e;line-height:1.55}}

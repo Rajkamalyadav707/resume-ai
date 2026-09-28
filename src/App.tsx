@@ -8,7 +8,7 @@ import {
   optimizeResume,
   resumeChat,
 } from "./services/api";
-import { extractResumeText } from "./utils/files";
+import { extractResumeText, validateResumeText } from "./utils/files";
 import {
   downloadResumePdf,
   getResumePdfPageCount,
@@ -227,6 +227,13 @@ function Workspace() {
     setBusy("Reading resume");
     try {
       const text = await extractResumeText(f);
+      const validationError = validateResumeText(text);
+      if (validationError) {
+        setResumeText("");
+        setFile(null);
+        toast(validationError);
+        return;
+      }
       setResumeText(text);
       setFile(f);
       setStep(2);
@@ -259,6 +266,12 @@ function Workspace() {
   };
   const analyze = async () => {
     if (!resumeText) return toast("Please upload a resume.");
+    const resumeValidationError = validateResumeText(resumeText);
+    if (resumeValidationError) {
+      setStep(1);
+      setFile(null);
+      return toast(resumeValidationError);
+    }
     if (!job.description.trim())
       return toast("Please provide a job description.");
     setBusy("Analyzing your resume");
@@ -398,6 +411,10 @@ function Workspace() {
           onClick={() => {
             localStorage.removeItem("resumeai.workspace.v1");
             setStep(1);
+            setResumeText("");
+            setFile(null);
+            setJob({ description: "" });
+            setUrl("");
             setAnalysis(null);
             setResume(null);
             setSaved(null);
